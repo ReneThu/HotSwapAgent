@@ -33,6 +33,7 @@ java {
     targetCompatibility = JavaVersion.toVersion("21")
 }
 
+//TODO add shadowJarTask and relocate files.
 
 graalvmNative.toolchainDetection = false
 

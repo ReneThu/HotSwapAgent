@@ -16,7 +16,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ClassHotSwaper implements ClassHotSwapInterface {
@@ -39,7 +38,7 @@ public class ClassHotSwaper implements ClassHotSwapInterface {
         Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(file);
 
         //TODO add jar paths for comiling of systemLoadedClasses.
-        List<String> options = Arrays.asList("-classpath", getSystemLoaderUrls());
+//        List<String> options = Arrays.asList("-classpath", getSystemLoaderUrls());
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 
         boolean success = task.call();

@@ -6,7 +6,6 @@ import com.agent.hotswaping.ClassHotSwaper;
 import com.agent.transformer.ClassWatcherTransformer;
 import com.agent.transformer.HotSwapTransformer;
 
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.net.URL;
@@ -31,8 +30,8 @@ public class HotSwapAgent {
         }
 
         instrumentationObject = instrumentation;
-        instrumentation.addTransformer(new ClassWatcherTransformer(classPattern, CLASS_STORE));
-        instrumentation.addTransformer(new HotSwapTransformer(CLASS_STORE));
+        instrumentation.addTransformer(new ClassWatcherTransformer(classPattern, CLASS_STORE), false);
+        instrumentation.addTransformer(new HotSwapTransformer(CLASS_STORE), true);
     }
 
     public static void startWebServer() throws Exception {
