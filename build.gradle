@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+task runMain(type: JavaExec) {
+    dependsOn ':Agent:shadowJar'
+    dependsOn ':Micronaut:shadowJar'
+
+    classpath = files(jar.archiveFile.get().asFile.getAbsolutePath())
+    classpath += sourceSets.main.runtimeClasspath
+    mainClass = "org.example.Main"
+    jvmArgs "-javaagent:/home/marco/Documents/Development/techEvangelistGeneric/HotSwapAgentV2/Agent/build/libs/agent-1.0-SNAPSHOT-all.jar" //TODO get this the "right" way
+}
+
+test {
+    useJUnitPlatform()
+}
+
+runMain.dependsOn(build)
