@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.vineflower:vineflower:1.10.1"
+    implementation project(':agentBridge')
+}
+
+shadowJar {
+    //dependsOn ':Micronaut:shadowJar'
+
+    manifest {
+        attributes 'Premain-Class': 'com.agent.HotSwapAgent'
+    }
+    archiveBaseName.set("agent")
+}
+
+//tasks.register('buildAgentJar', Jar) {
+//    dependsOn ':Micronaut:shadowJar'
+//
+//    manifest {
+//        attributes 'Premain-Class': 'com.agent.HotSwapAgent'
+//    }
+//    archiveBaseName.set("agent")
+//    from(sourceSets.agent.output)
+//}
+
+//task runMain(type: JavaExec) {
+//    classpath = files(jar.archiveFile.get().asFile.getAbsolutePath())
+//    classpath += sourceSets.main.runtimeClasspath
+//    mainClass = "org.example.Main"
+//    jvmArgs "-javaagent:${buildAgentJar.archiveFile.get().asFile}"
+//}
+
+
+//build.dependsOn(buildAgentJar)
+//runMain.dependsOn(build)
