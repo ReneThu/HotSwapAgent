@@ -1,6 +1,5 @@
 package com.agent.transformer;
 
-import com.agent.HotSwapAgent;
 import com.agent.capturing.ClassStore;
 import com.agent.hotswaping.TrancientClass;
 
@@ -20,6 +19,11 @@ public class HotSwapTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         TrancientClass trancientClass = TrancientClass.avilableClasses.get(className);
+
+        if (trancientClass == null) {
+            return null;
+        }
+
         try {
             classStore.updateClassFile(trancientClass);
         } catch (IOException e) {

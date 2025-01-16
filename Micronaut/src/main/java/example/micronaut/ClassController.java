@@ -6,6 +6,7 @@ import io.micronaut.http.annotation.*;
 import io.micronaut.views.View;
 
 import java.io.IOException;
+import java.lang.instrument.UnmodifiableClassException;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,17 +28,23 @@ public class ClassController {
     }
 
     @Put("/hot-swap/{className}")
-    public String update(@PathVariable String className) {
+    public String update(@PathVariable String className) throws UnmodifiableClassException, ClassNotFoundException {
        String code =  """
                 package org.example;
                 
                 public class Main {
                     public static void main(String[] args) throws Exception {
-                        System.out.println("Hello world!assasasa");
+                        while (true) {
+                            Thread.sleep(1000);
+                            printHelloWorld();
+                        }
+                    }
+                
+                    public static void printHelloWorld() {
+                        System.out.println("Hello, World!asdasdsad");
                     }
                 }
                 """;
-
 
         Application.hotSwap.hotSwap(className.replace("-", "/"), code);
         return "Received: ";

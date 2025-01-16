@@ -16,10 +16,15 @@ dependencies {
 }
 
 shadowJar {
-    //dependsOn ':Micronaut:shadowJar'
+    //dependsOn ':Micronaut:shadowJar' //TODO packged micronaut into resourceFolder
+    //TODO relocate dependencies
 
     manifest {
-        attributes 'Premain-Class': 'com.agent.HotSwapAgent'
+        attributes(
+                'Premain-Class': 'com.agent.HotSwapAgent',
+                'Can-Redefine-Classes': 'true',
+                'Can-Retransform-Classes': 'true'
+        )
     }
     archiveBaseName.set("agent")
 }
