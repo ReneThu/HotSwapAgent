@@ -1,6 +1,7 @@
 package example.micronaut;
 
 import example.micronaut.dtos.CodeElementDto;
+import example.micronaut.dtos.CodeUpdateDto;
 import example.micronaut.dtos.JavaClassDto;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -58,7 +59,7 @@ public class ClassController {
     }
 
     @Put("/hot-swap/{className}")
-    public HttpResponse<?> update(@PathVariable String className) throws UnmodifiableClassException, ClassNotFoundException {
+    public HttpResponse<?> update(@PathVariable String className, @Body CodeUpdateDto code) throws UnmodifiableClassException, ClassNotFoundException {
 //        Application.hotSwap.hotSwap(className.replace("-", "/"), code);
         return HttpResponse.ok();
     }

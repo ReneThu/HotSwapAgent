@@ -21,7 +21,6 @@ dependencies {
     testImplementation("io.micronaut:micronaut-http-client")
     implementation project(':agentBridge')
     implementation("io.micronaut.views:micronaut-views-thymeleaf")
-
 }
 
 

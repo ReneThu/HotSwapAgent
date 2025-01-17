@@ -49,11 +49,9 @@
         }
     </style>
     <script>
-        function runCode() {
+        function runCode(className) {
             const code = document.getElementById('codeArea').value;
-            const className = /*[[${codeElement.className}]]*/ 'defaultClassName'; // Placeholder for Thymeleaf variable
-
-            fetch(`http://localhost:8080/class/hot-swap/testest`, {
+            fetch(`../hot-swap/${className}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -62,7 +60,7 @@
             })
             .then(response => {
                 if (response.ok) {
-                    location.reload(); // Reload the current page
+                    location.reload();
                 } else {
                     alert('Error executing code');
                 }
@@ -82,7 +80,7 @@
 <h1 th:text="${codeElement.className}"></h1>
 <textarea id="codeArea" th:text="${codeElement.decompiledCode}"></textarea>
 <div class="button-container">
-    <button onclick="runCode()">Run</button>
+    <button th:onclick="runCode([[${codeElement.className}]])">Run</button>
     <button class="back-button" onclick="goBack()">Back</button>
 </div>
 </body>
