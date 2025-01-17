@@ -8,7 +8,7 @@ import io.micronaut.serde.annotation.Serdeable;
 @ReflectiveAccess
 @Introspected
 public class JavaClassDto {
-    private static final String URL_PREFIX = "http://localhost:8080/class/show/"; //TODO use a relative path
+    private static final String URL_PREFIX = "show/";
 
     private String className;
     private String showCodeUrl;
