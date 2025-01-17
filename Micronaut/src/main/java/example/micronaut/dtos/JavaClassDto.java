@@ -1,14 +1,17 @@
 package example.micronaut.dtos;
 
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.core.annotation.ReflectiveAccess;
 import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
+@ReflectiveAccess
+@Introspected
 public class JavaClassDto {
-    private static final String URL_PREFIX = "http://localhost:8080/class/show/";
+    private static final String URL_PREFIX = "http://localhost:8080/class/show/"; //TODO use a relative path
 
     private String className;
     private String showCodeUrl;
-
 
     public JavaClassDto() {
     }
