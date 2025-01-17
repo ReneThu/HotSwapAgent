@@ -1,5 +1,6 @@
 package example.micronaut;
 
+import example.micronaut.dtos.CodeElementDto;
 import example.micronaut.dtos.JavaClassDto;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
@@ -11,6 +12,24 @@ import java.util.*;
 
 @Controller("/class")
 public class ClassController {
+
+    String code =  """
+                package org.example;
+                
+                public class Main {
+                    public static void main(String[] args) throws Exception {
+                        while (true) {
+                            Thread.sleep(1000);
+                            printHelloWorld();
+                        }
+                    }
+                
+                    public static void printHelloWorld() {
+                        System.out.println("Hello, World!asdasdsad");
+                    }
+                }
+                """;
+
 
     @Get("/list")
     @View("classView")
@@ -27,30 +46,19 @@ public class ClassController {
     }
 
     @Get("/show/{className}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String showDecompiledCode(String className) throws IOException {
-        Optional<String> decompiledCLass = Application.classStore.getDecompiledClassAsString(className.replace("-", "/"));
-        return decompiledCLass.orElse("Class not found!");
+    @View("codeElementView")
+    @Produces(MediaType.TEXT_HTML)
+    public Map<String, CodeElementDto> showDecompiledCode(String className) throws IOException {
+
+        CodeElementDto codeElementDto = new CodeElementDto("some.test.Class", code);
+
+
+        return Collections.singletonMap("codeElement", codeElementDto);
     }
 
     @Put("/hot-swap/{className}")
     public String update(@PathVariable String className) throws UnmodifiableClassException, ClassNotFoundException {
-       String code =  """
-                package org.example;
-                
-                public class Main {
-                    public static void main(String[] args) throws Exception {
-                        while (true) {
-                            Thread.sleep(1000);
-                            printHelloWorld();
-                        }
-                    }
-                
-                    public static void printHelloWorld() {
-                        System.out.println("Hello, World!asdasdsad");
-                    }
-                }
-                """;
+
 
         Application.hotSwap.hotSwap(className.replace("-", "/"), code);
         return "Received: ";
