@@ -41,8 +41,23 @@
     <script>
         function runCode() {
             const code = document.getElementById('codeArea').value;
-            alert('Running the code: ' + code);
-            // Add your code execution logic here
+            const className = /*[[${codeElement.className}]]*/ 'defaultClassName'; // Placeholder for Thymeleaf variable
+
+            fetch(`http://localhost:8080/class/hot-swap/testest`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Code executed successfully: ' + JSON.stringify(data));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error executing code');
+            });
         }
     </script>
 </head>
