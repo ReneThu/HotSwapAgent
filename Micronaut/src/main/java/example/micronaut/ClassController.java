@@ -7,17 +7,23 @@ import io.micronaut.views.View;
 
 import java.io.IOException;
 import java.lang.instrument.UnmodifiableClassException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller("/class")
 public class ClassController {
 
     @Get("/list")
-//    @View("classView")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public List<JavaClassDto> list() {
-        return Application.classStore.getAllCollectedClasses().stream().map(JavaClassDto::new).toList();
+    @View("classView")
+    @Produces(MediaType.TEXT_HTML)
+    public Map<String, List<JavaClassDto>> list() {
+        //TODO replace by real code again
+
+        List<JavaClassDto> elemets = new ArrayList<>();
+        elemets.add(new JavaClassDto("Test_1"));
+        elemets.add(new JavaClassDto("Test_2"));
+        elemets.add(new JavaClassDto("Test_3"));
+
+        return Collections.singletonMap("classDtos", elemets);
     }
 
     @Get("/show/{className}")
