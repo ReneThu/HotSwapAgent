@@ -37,6 +37,16 @@
         button:hover {
             background-color: #45a049;
         }
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+        .back-button {
+            background-color: #f44336;
+        }
+        .back-button:hover {
+            background-color: #e53935;
+        }
     </style>
     <script>
         function runCode() {
@@ -50,20 +60,30 @@
                 },
                 body: JSON.stringify({ code: code })
             })
-            .then(response => response.json())
-            .then(data => {
-                alert('Code executed successfully: ' + JSON.stringify(data));
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // Reload the current page
+                } else {
+                    alert('Error executing code');
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error executing code');
             });
         }
+
+        function goBack() {
+            window.history.back();
+        }
     </script>
 </head>
 <body>
 <h1 th:text="${codeElement.className}"></h1>
 <textarea id="codeArea" th:text="${codeElement.decompiledCode}"></textarea>
-<button onclick="runCode()">Run</button>
+<div class="button-container">
+    <button onclick="runCode()">Run</button>
+    <button class="back-button" onclick="goBack()">Back</button>
+</div>
 </body>
 </html>
