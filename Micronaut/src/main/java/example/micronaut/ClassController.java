@@ -2,6 +2,7 @@ package example.micronaut;
 
 import example.micronaut.dtos.CodeElementDto;
 import example.micronaut.dtos.JavaClassDto;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
 import io.micronaut.views.View;
@@ -57,10 +58,8 @@ public class ClassController {
     }
 
     @Put("/hot-swap/{className}")
-    public String update(@PathVariable String className) throws UnmodifiableClassException, ClassNotFoundException {
-
-
-        Application.hotSwap.hotSwap(className.replace("-", "/"), code);
-        return "Received: ";
+    public HttpResponse<?> update(@PathVariable String className) throws UnmodifiableClassException, ClassNotFoundException {
+//        Application.hotSwap.hotSwap(className.replace("-", "/"), code);
+        return HttpResponse.ok();
     }
 }
