@@ -12,6 +12,7 @@ public class JavaClassDto {
 
     private String className;
     private String showCodeUrl;
+    private String javaClassName;
 
     public JavaClassDto() {
     }
@@ -19,6 +20,7 @@ public class JavaClassDto {
     public JavaClassDto(String className) {
         this.className = className;
         this.showCodeUrl = URL_PREFIX + className.replace("/", "-");
+        this.javaClassName = classNameToJavaFormate(className);
     }
 
     public String getClassName() {
@@ -35,5 +37,17 @@ public class JavaClassDto {
 
     public void setShowCodeUrl(String showCodeUrl) {
         this.showCodeUrl = showCodeUrl;
+    }
+
+    public String getJavaClassName() {
+        return javaClassName;
+    }
+
+    public void setJavaClassName(String javaClassName) {
+        this.javaClassName = javaClassName;
+    }
+
+    private static String classNameToJavaFormate(String className) {
+        return className.replace("-", ".").replace("/", ".");
     }
 }

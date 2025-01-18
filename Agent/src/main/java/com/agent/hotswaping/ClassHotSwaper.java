@@ -2,6 +2,7 @@ package com.agent.hotswaping;
 
 import com.agent.ClassHotSwapInterface;
 import com.agent.HotSwapAgent;
+import com.agent.TransiendtCLassInterface;
 
 import javax.tools.*;
 import java.io.ByteArrayOutputStream;
@@ -21,11 +22,9 @@ import java.util.Map;
 public class ClassHotSwaper implements ClassHotSwapInterface {
 
     @Override
-    public void hotSwap(String fullCLassName, String classFile) throws ClassNotFoundException, UnmodifiableClassException {
+    public TransiendtCLassInterface hotSwap(String fullCLassName, String classFile) throws ClassNotFoundException, UnmodifiableClassException {
         byte[] compiledBydeCode = compile(fullCLassName, classFile);
-
-        TrancientClass trancientClass = TrancientClass.scedualClassChange(compiledBydeCode, classFile, fullCLassName);
-
+        return TrancientClass.scedualClassChange(compiledBydeCode, classFile, fullCLassName);
     }
 
 

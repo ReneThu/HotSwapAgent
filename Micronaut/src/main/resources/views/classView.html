@@ -44,7 +44,7 @@
     </tr>
     <tr th:each="classDto : ${classDtos}">
         <td th:text="${classDto.className}"></td>
-        <td><a th:href="${classDto.showCodeUrl}" th:text="${classDto.showCodeUrl}"></a></td>
+        <td><a th:href="${classDto.showCodeUrl}" th:text="${classDto.javaClassName}"></a></td>
     </tr>
 </table>
 </body>
