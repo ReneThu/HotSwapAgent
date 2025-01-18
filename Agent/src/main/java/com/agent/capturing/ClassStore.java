@@ -3,6 +3,8 @@ package com.agent.capturing;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.agent.ClassStoreInterface;
 import com.agent.hotswaping.TrancientClass;
@@ -10,7 +12,7 @@ import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 
 public class ClassStore implements ClassStoreInterface {
 
-    private final Map<String, SavedClassFile> classToFileMap = new HashMap<>();
+    private final ConcurrentMap<String, SavedClassFile> classToFileMap = new ConcurrentHashMap<>();
     private final String tmpFolder = "/tmp"; //TODO look this up
     public void saveClass(String className, byte[] classfileBuffer) {
         classToFileMap.put(className, new SavedClassFile(className, classfileBuffer));
@@ -33,6 +35,11 @@ public class ClassStore implements ClassStoreInterface {
         if (savedClassFile == null) {
             return Optional.empty();
         }
+
+        if (!savedClassFile.isHasBeenDecompiled()) {
+            decompileSavedClass(Collections.singletonList(className));
+        }
+
         return Optional.of(new String(Files.readAllBytes(savedClassFile.getDecompiledClassLocation())));
     }
 
@@ -45,5 +52,4 @@ public class ClassStore implements ClassStoreInterface {
         savedClassFile.updateDecompiledClassLocation(trancientClass.getNewClassFile());
         savedClassFile.updateClassFileLocation(trancientClass.getCompiledClass());
     }
-
 }

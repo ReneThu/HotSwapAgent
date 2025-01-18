@@ -26,6 +26,7 @@ public class HotSwapTransformer implements ClassFileTransformer {
 
         try {
             classStore.updateClassFile(trancientClass);
+            trancientClass.classReloadDone();
         } catch (IOException e) {
             //TODO log warning!
         }

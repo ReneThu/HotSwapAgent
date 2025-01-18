@@ -22,7 +22,6 @@ public class ClassWatcherTransformer implements ClassFileTransformer {
 
         if (className != null && className.startsWith(classPattern)) {
             classStore.saveClass(className, classfileBuffer);
-            classStore.decompileSavedClass(Collections.singletonList(className)); //TODO decompile in batches
         }
         return null;
     }
