@@ -42,3 +42,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### SliDev get ignor
+node_modules
+.vite-inspect
+.remote-assets
+components.d.ts
