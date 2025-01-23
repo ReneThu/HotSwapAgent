@@ -1,4 +1,4 @@
 rootProject.name = 'HotSwapAgentV2'
 
-include 'Micronaut', 'Agent', "agentBridge"
+include 'micronaut', 'agent', "agentBridge", "codeRunner"
 
