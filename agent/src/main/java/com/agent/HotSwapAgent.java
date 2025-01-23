@@ -6,7 +6,9 @@ import com.agent.hotswaping.ClassHotSwaper;
 import com.agent.transformer.ClassWatcherTransformer;
 import com.agent.transformer.HotSwapTransformer;
 
+import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.file.Path;
@@ -38,7 +40,7 @@ public class HotSwapAgent {
         URL[] urls = new URL[]
                 {
                         //TODO write custom class loader that can read from jar.ressource
-                        Path.of("/home/marco/Documents/Development/techEvangelistGeneric/HotSwapAgentV2/Micronaut/build/libs/Micronaut-0.1-all.jar").toUri().toURL(),
+                        Path.of("/home/marco/Documents/Development/techEvangelistGeneric/HotSwapAgentV2/micronaut/build/libs/Micronaut-0.1-all.jar").toUri().toURL(),
                 };
 
         jarClassLoader = new JarClassLoader(urls, ClassLoader.getSystemClassLoader());
@@ -47,5 +49,9 @@ public class HotSwapAgent {
         springMain =  (MicronautApplicationInterface) constructor.newInstance();
         classHotSwaper = new ClassHotSwaper();
         springMain.start(CLASS_STORE, classHotSwaper);
+    }
+
+    public static void hotSwapClass(Class<?> classRef) throws UnmodifiableClassException {
+        instrumentationObject.retransformClasses(classRef);
     }
 }

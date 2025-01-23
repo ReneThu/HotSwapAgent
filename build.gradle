@@ -15,13 +15,14 @@ dependencies {
 }
 
 task runMain(type: JavaExec) {
-    dependsOn ':Agent:shadowJar'
-    dependsOn ':Micronaut:shadowJar'
+    dependsOn ':agent:shadowJar'
+    dependsOn ':micronaut:shadowJar'
 
     classpath = files(jar.archiveFile.get().asFile.getAbsolutePath())
     classpath += sourceSets.main.runtimeClasspath
     mainClass = "org.example.Main"
-    jvmArgs "-javaagent:/home/marco/Documents/Development/techEvangelistGeneric/HotSwapAgentV2/Agent/build/libs/agent-1.0-SNAPSHOT-all.jar" //TODO get this the "right" way
+
+    jvmArgs "-javaagent:" + project(':agent').layout.buildDirectory.get().asFile + "/libs/agent-1.0-SNAPSHOT-all.jar"
 }
 
 test {
