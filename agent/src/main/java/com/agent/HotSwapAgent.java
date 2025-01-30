@@ -40,7 +40,7 @@ public class HotSwapAgent {
         URL[] urls = new URL[]
                 {
                         //TODO write custom class loader that can read from jar.ressource
-                        Path.of("/home/marco/Documents/Development/techEvangelistGeneric/HotSwapAgentV2/micronaut/build/libs/Micronaut-0.1-all.jar").toUri().toURL(),
+                        Path.of("/home/marco/Documents/Development/techEvangelistGeneric/HotSwapAgentV2/micronaut/build/libs/micronaut-0.1-all.jar").toUri().toURL(),
                 };
 
         jarClassLoader = new JarClassLoader(urls, ClassLoader.getSystemClassLoader());

@@ -1,0 +1,13 @@
+<script>
+    function fetchOutput() {
+        fetch('http://localhost:8081/output')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('outputBox').value = data;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    setInterval(fetchOutput, 1000); // Refresh every second
+    fetchOutput(); // Initial fetch
+</script>

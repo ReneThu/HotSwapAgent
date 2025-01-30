@@ -51,11 +51,46 @@ layout: center
 <div class="addonestuff">https://www.sussitzm.com</div>
 
 ---
-layout: center
+layout: iframe-right
+url: http://localhost:8080/class/list
+
 transition: none
+
+class: zoom-custom-85
 ---
 
-<h1>TODO add grid to show sample code and the web page</h1>
+<style>
+.zoom-custom-85 {
+    zoom: 0.85
+}
+</style>
+
+
+
+
+<div class="grid grid-rows-[auto_auto_1fr]">
+<div>
+```java{all}
+package org.example;
+
+public class Main {
+public static void main(String[] args) throws Exception {
+while (true) {
+Thread.sleep(1000);
+printHelloWorld();
+}
+}
+
+    public static void printHelloWorld() {
+        System.out.println("Hello, World!");
+    }
+}
+```
+</div>
+<Counter />
+</div>
+
+
 
 ---
 layout: center

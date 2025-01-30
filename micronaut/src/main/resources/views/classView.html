@@ -39,11 +39,9 @@
 <h1>Class List</h1>
 <table>
     <tr>
-        <th>ClassName</th>
         <th>URL</th>
     </tr>
     <tr th:each="classDto : ${classDtos}">
-        <td th:text="${classDto.className}"></td>
         <td><a th:href="${classDto.showCodeUrl}" th:text="${classDto.javaClassName}"></a></td>
     </tr>
 </table>

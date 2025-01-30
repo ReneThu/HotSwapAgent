@@ -16,7 +16,7 @@ public class CodeExcecutionElement {
     private Thread outputThread;
 
     private final LinkedList<String> ringBuffer = new LinkedList<>();
-    private final int bufferSize = 150;
+    private final int bufferSize = 10;
     private final Lock lock = new ReentrantLock();
 
     public CodeExcecutionElement(String... command) {
