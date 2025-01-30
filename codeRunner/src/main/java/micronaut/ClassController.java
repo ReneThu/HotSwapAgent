@@ -33,6 +33,10 @@ public class ClassController {
     @Get("/output")
     @Produces(MediaType.TEXT_PLAIN)
     public String getOutput() {
+        if (this.codeExcecutionElement == null) {
+            return "";
+        }
+
         List<String> output =  this.codeExcecutionElement.getRingBufferContents();
 
         return output.stream().collect(Collectors.joining("\n"));
