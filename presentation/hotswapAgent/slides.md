@@ -51,6 +51,31 @@ layout: center
 <div class="addonestuff">https://www.sussitzm.com</div>
 
 ---
+layout: center
+transition: none
+---
+<v-clicks at="1">
+<div>
+```java{all|all|5-8|12}
+package org.example;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        while (true) {
+            Thread.sleep(1000);
+            printHelloWorld();
+        }
+}
+
+    public static void printHelloWorld() {
+        System.out.println("Hello, World!");
+    }
+}
+```
+</div>
+</v-clicks>
+
+---
 layout: iframe-right
 url: http://localhost:8080/class/list
 
@@ -114,6 +139,13 @@ transition: none
   </div>
 </v-click>
 
+<!--
+There is qute from Carl Sagan.
+If you wish to make an apple pie from scratch, you must first invent the universe.
+
+If we really want to understand how code hotswapping works we first need to understand
+how classes are loaded in the JVM
+-->
 
 ---
 layout: center
@@ -131,12 +163,32 @@ transition: none
           Loading
         </span>
       </li>
-    <li v-click>Linking</li>
     <li v-click>Verify</li>
     <li v-click>Prepare</li>
     <li v-click>(Optionally) Resolve</li>
   </ul>
 </div>
+
+<!--
+chaper 12 of the java langues specification as well as chaper 5 of the java virtual machine specification talk about that.
+So there are 5 steps that are taken.
+
+The first one loading. 
+So if a class is requested that is not laoded classloader will be used to look for a bianry representation of the class.
+
+Verification:
+This means that the class is checkt that it is well-formated. So with a proper symbol table and so on.
+
+Preparation:
+static storage and any data structures
+
+Resolution(optional):
+
+checking symbolic references from the class to other
+classes and interfaces.
+
+The Loading step is the one we are interested in.
+-->
 
 ---
 layout: center
@@ -152,6 +204,10 @@ transition: none
     <li v-click>With the JVMTI!</li>
   </ul>
 </div>
+
+<!--
+How here as worked with the JVMTI before raise of hand?
+-->
 
 ---
 layout: center
@@ -181,6 +237,8 @@ layout: center
 transition: none
 ---
 
+<v-clicks>
+
 ```java{all}
 jvmtiError
 RetransformClasses(jvmtiEnv* env,
@@ -188,10 +246,14 @@ RetransformClasses(jvmtiEnv* env,
             const jclass* classes)
 ```
 
+</v-clicks>
+
 ---
 layout: center
 transition: none
 ---
+
+<v-clicks>
 
 ```java{all}
 typedef struct {
@@ -206,17 +268,7 @@ RedefineClasses(jvmtiEnv* env,
             const jvmtiClassDefinition* class_definitions)
 ```
 
-
----
-layout: center
-transition: none
----
-
-<v-click>
-  <div class="image">
-      <img src="./pictures/sufferFromCpp.png" alt=""/>
-  </div>
-</v-click>
+</v-clicks>
 
 ---
 layout: center
@@ -231,6 +283,7 @@ transition: none
   <ul>
     <li v-click>Agents</li>
     <li v-click>java.lang.instrument</li>
+    <li v-click>java -javaagent:agent.jar -jar helloWorld.jar</li>
   </ul>
 </div>
 
@@ -239,18 +292,20 @@ layout: center
 transition: none
 ---
 
-````md magic-move {lines: true}
+<v-clicks>
+
+````md magic-move{lines: true}
 ```java{all}
 public class HotSwapAgent {
     private static Instrumentation instrumentation;
 
     public static void premain(String arguments, Instrumentation instrumentationObject) {
         instrumentation = instrumentationObject;
-    } n
+    } 
 }
 ```
 
-```java{all}
+```java{all|all|7-11}
 public class HotSwapAgent {
     private static Instrumentation instrumentation;
 
@@ -258,14 +313,14 @@ public class HotSwapAgent {
         instrumentation = instrumentationObject;
     }
     
-    public static void hotSwapClass(Class<?> classRef, byte[] classfileBuffer)
+    public static void hotSwapClass(Class<?> klass, byte[] classfileBuffer)
             throws UnmodifiableClassException, ClassNotFoundException {
-        instrumentationObject.redefineClasses(new ClassDefinition(classRef, classfileBuffer));
+        instrumentationObject.redefineClasses(new ClassDefinition(klass, classfileBuffer));
     }
 }
 ```
 
-```java{all}
+```java{all|9|10|6}
 public class HotSwapAgent {
     private static Instrumentation instrumentation;
 
@@ -274,37 +329,34 @@ public class HotSwapAgent {
         instrumentation.addTransformer(new HotSwapTransformer(), true);
     }
     
-    public static void hotSwapClass(Class<?> classRef) throws UnmodifiableClassException {
-        instrumentationObject.retransformClasses(classRef);
+    public static void hotSwapClass(Class<?> klass) throws UnmodifiableClassException {
+        instrumentationObject.retransformClasses(klass);
     }
 }
 ```
 ````
+</v-clicks>
 
 ---
 layout: center
 transition: none
 ---
 
-```java{all}
-public class HotSwapTransformer implements ClassFileTransformer {
+<v-clicks>
 
+```java{all|3-7|8}
+public class HotSwapTransformer implements ClassFileTransformer {
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+    public byte[] transform(ClassLoader loader,
+                            String className,
+                            Class<?> classBeingRedefined,
+                            ProtectionDomain protectionDomain,
+                            byte[] classfileBuffer) throws IllegalClassFormatException {
         return transformClassFile(classfileBuffer);
     }
 }
 ```
 
----
-layout: center
-transition: none
----
-
-<v-clicks>
-
-<h1>Show the transform as well as the redefine calls so 3 functions.</h1>
-
 </v-clicks>
 
 ---
@@ -313,12 +365,19 @@ transition: none
 ---
 
 <v-clicks>
-
-<h1>So to recape we need 2 things to performe a hotswap</h1>
-<h2>Trigger the hotswap via one of the two APIs</h2>
-<h2>valied bydecode TODO easy right? yeah but getting the bydeocde is hard.</h2>
-
+<h1>What do we need for a hotswap?</h1>
 </v-clicks>
+
+<div>
+  <ul>
+    <li v-click>Trigger the hotswap via one of the two APIs</li>
+  <li v-click>
+    <span v-mark.underscore.orange=3>
+      Get a valid class representation from somewhere.
+    </span>
+  </li>
+  </ul>
+</div>
 
 ---
 layout: center
@@ -326,10 +385,18 @@ transition: none
 ---
 
 <v-clicks>
-
-<h1>Where do we get correct bydecode from? Javac or we use ASM or a like to genberate it on the fly.</h1>
-
+<h1>Where do we get the bytecode from?</h1>
 </v-clicks>
+
+<div>
+  <ul>
+    <li v-click>The java compiler javac</li>
+    <li v-click>The compiler API javax.tools</li>
+    <li v-click>ASM</li>
+    <li v-click>Javassist</li>
+    <li v-click>Byte Buddy</li>
+  </ul>
+</div>
 
 ---
 layout: center
@@ -337,10 +404,25 @@ transition: none
 ---
 
 <v-clicks>
-
-<h1>Hot swapping is great and super easy!</h1>
-
+<h1>What can you use it for?</h1>
 </v-clicks>
+
+<div>
+  <ul>
+    <li v-click>For observability
+      <ul>
+        <li>Turn tracing on or off</li>
+        <li>Capture local variables</li>
+      </ul>
+    </li>
+    <li v-click>For development
+      <ul>
+        <li>Debugging locally</li>
+        <li>Fast code changes</li>
+      </ul>
+    </li>
+  </ul>
+</div>
 
 ---
 layout: center
@@ -348,11 +430,19 @@ transition: none
 ---
 
 <v-clicks>
-
-<h1>If you actully start using it you will see excpetions and errors that you have never seen before.</h1>
-<h1>And you cannot to everything. There are some liminations to what you can change in the class file</h1>
-
+<h1>What to watch out for?</h1>
 </v-clicks>
+
+<div>
+  <ul>
+    <li v-click>Cannot add or remove fields and methods</li>
+    <li v-click>Cannot change the signature of methods</li>
+    <li v-click>Cannot change the inheritance</li>
+    <li v-click>Performance cost</li>
+    <li v-click>Meta space cost</li>
+    <li v-click>Generating bytecode is difficult</li>
+  </ul>
+</div>
 
 ---
 layout: center
@@ -360,40 +450,21 @@ transition: none
 ---
 
 <v-clicks>
-
-<h1>TODO add a list of limitations</h1>
-
+<h1>What do we need for a hotswap?</h1>
 </v-clicks>
+
+<div>
+  <ul>
+    <li v-click>Attach a java agent to a JVM</li>
+    <li v-click>Trigger a class reload</li>
+    <li v-click>Generate our new bytecode</li>
+  </ul>
+</div>
 
 ---
 layout: center
 transition: none
 ---
 
-<v-clicks>
+<h1>TODO add end slide with QR code</h1>
 
-<h1>Also every hot swap has a memeory impact on your JVM this will cost you memeory in the meta space.</h1>
-
-</v-clicks>
-
----
-layout: center
-transition: none
----
-
-<v-clicks>
-
-<h1>We use it to dynamicly capture local variable in some situations.</h1>
-
-</v-clicks>
-
----
-layout: center
-transition: none
----
-
-<v-clicks>
-
-<h1>We use it to dynamicly capture local variable in some situations.</h1>
-
-</v-clicks>
