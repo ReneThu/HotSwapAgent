@@ -16,7 +16,7 @@ function fetchOutput() {
 function startFetching() {
     if (!intervalId.value) {
         fetchOutput(); // Initial fetch
-        intervalId.value = setInterval(fetchOutput, 1000); // Refresh every second
+        intervalId.value = setInterval(fetchOutput, 500); // Refresh every second
     }
 }
 
