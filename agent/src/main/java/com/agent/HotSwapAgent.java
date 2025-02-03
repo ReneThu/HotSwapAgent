@@ -6,9 +6,7 @@ import com.agent.hotswaping.ClassHotSwaper;
 import com.agent.transformer.ClassWatcherTransformer;
 import com.agent.transformer.HotSwapTransformer;
 
-import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.file.Path;
@@ -18,16 +16,21 @@ public class HotSwapAgent {
     public static final ClassStore CLASS_STORE = new ClassStore();
     public static JarClassLoader jarClassLoader;
     public static Instrumentation instrumentationObject;
+
     private static MicronautApplicationInterface springMain;
     private static ClassHotSwaper classHotSwaper;
+    private static String[] args;
 
     public static void premain(String arguments, Instrumentation instrumentation) {
-        //TODO get class name from arguments
-        String classPattern = "org/example";
+        args = arguments.split(",");
+
+        if (args.length != 2) {
+            System.err.println("Incorrect number of arguments, agent shutting off");
+        }
+        String classPattern = args[0];
         try {
             startWebServer();
         } catch (Exception e) {
-            //TODO log warning could not start web serevr
             throw new RuntimeException(e);
         }
 
@@ -37,21 +40,14 @@ public class HotSwapAgent {
     }
 
     public static void startWebServer() throws Exception {
-        URL[] urls = new URL[]
-                {
-                        //TODO write custom class loader that can read from jar.ressource
-                        Path.of("/home/marco/Documents/Development/techEvangelistGeneric/HotSwapAgentV2/micronaut/build/libs/micronaut-0.1-all.jar").toUri().toURL(),
-                };
+        URL[] urls = new URL[] { Path.of(args[1]).toUri().toURL()};
 
+        //The mirconaut app could also be packaged together with the agent then no classLoader would be needed.
         jarClassLoader = new JarClassLoader(urls, ClassLoader.getSystemClassLoader());
         Class<?> springClass = jarClassLoader.loadClass("example.micronaut.Application");
         Constructor<?> constructor = springClass.getConstructor();
         springMain =  (MicronautApplicationInterface) constructor.newInstance();
         classHotSwaper = new ClassHotSwaper();
         springMain.start(CLASS_STORE, classHotSwaper);
-    }
-
-    public static void hotSwapClass(Class<?> classRef) throws UnmodifiableClassException {
-        instrumentationObject.retransformClasses(classRef);
     }
 }

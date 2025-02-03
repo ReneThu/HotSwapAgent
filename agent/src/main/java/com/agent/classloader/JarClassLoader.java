@@ -10,7 +10,7 @@ public class JarClassLoader extends URLClassLoader {
     public JarClassLoader(URL[] resource, ClassLoader parent) throws Exception {
         super(resource, parent);
         jarPath = resource[0].getPath();
-        System.out.println("TESTETSTESTESTEST");
+        System.out.println(jarPath);
     }
 
 //    @Override
