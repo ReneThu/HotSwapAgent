@@ -1,14 +1,12 @@
 package com.agent.hotswaping;
 
 import com.agent.ClassHotSwapInterface;
-import com.agent.HotSwapAgent;
-import com.agent.TransiendtCLassInterface;
+import com.agent.TransientCLassInterface;
 
 import javax.tools.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,9 +20,9 @@ import java.util.Map;
 public class ClassHotSwaper implements ClassHotSwapInterface {
 
     @Override
-    public TransiendtCLassInterface hotSwap(String fullCLassName, String classFile) throws ClassNotFoundException, UnmodifiableClassException {
+    public TransientCLassInterface hotSwap(String fullCLassName, String classFile) throws ClassNotFoundException, UnmodifiableClassException {
         byte[] compiledBydeCode = compile(fullCLassName, classFile);
-        return TrancientClass.scedualClassChange(compiledBydeCode, classFile, fullCLassName);
+        return TransientClass.scheduleClassChange(compiledBydeCode, classFile, fullCLassName);
     }
 
 
@@ -36,14 +34,18 @@ public class ClassHotSwaper implements ClassHotSwapInterface {
         JavaFileObject file = new InMemoryJavaFileObject(className, sourceCode);
         Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(file);
 
-        //TODO add jar paths for comiling of systemLoadedClasses.
+        //TODO This would require access to the other files to compile any file on the fly.
+        //There are multiple ways this could be achieved. The system classLoader should have access to most of them in most
+        //cases, but accessing that might be impossible without providing a custom classLoader on start-up and tbh
+        //I was too lazy to do that. A different way might be to analyze to
+        //the provided source code and use the decompiler to generate recursively
+        //The source files until all needed files are present to compile against that.
+        //There might also be a different way, but I did not spend too much time on this.
 //        List<String> options = Arrays.asList("-classpath", getSystemLoaderUrls());
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 
         boolean success = task.call();
         if (success) {
-
-            //TODO exmplain the replace all
             return fileManager.getClassBytes().get(className.replace("/", ".")).outputStream.toByteArray();
         } else {
             diagnostics.getDiagnostics().forEach(diagnostic -> {
@@ -53,28 +55,20 @@ public class ClassHotSwaper implements ClassHotSwapInterface {
         }
     }
 
+    //This does not work with newer java version
     private static String getSystemLoaderUrls() {
         ClassLoader cl = ClassLoader.getSystemClassLoader();
         try {
-            // Get the system class loader
             ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-
-            // Access the private field 'ucp' in URLClassLoader
             Field ucpField = URLClassLoader.class.getDeclaredField("ucp");
             ucpField.setAccessible(true);
-
-            // Get the value of the 'ucp' field
             Object ucp =  ucpField.get(systemClassLoader);
 
             Method getURLsMethod = ucp.getClass().getDeclaredMethod("getURLs");
             getURLsMethod.setAccessible(true);
 
-            // Invoke the 'getURLs' method
             URL[] urls = (URL[]) getURLsMethod.invoke(ucp);
 
-
-            // Print the URLs in the URLClassPath
-            System.out.println("URLs in the URLClassPath:");
             for (URL url : urls) {
                 System.out.println(url);
             }

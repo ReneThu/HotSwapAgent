@@ -1,6 +1,6 @@
 package com.agent;
 
-public interface TransiendtCLassInterface {
+public interface TransientCLassInterface {
     void waitUntilReloaded() throws InterruptedException;
     void classReloadDone();
 }

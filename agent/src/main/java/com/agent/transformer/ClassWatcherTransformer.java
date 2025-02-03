@@ -19,10 +19,9 @@ public class ClassWatcherTransformer implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-
         if (className != null && className.startsWith(classPattern)) {
             classStore.saveClass(className, classfileBuffer);
         }
-        return null;
+        return null; //This returns null if no transformation is done
     }
 }

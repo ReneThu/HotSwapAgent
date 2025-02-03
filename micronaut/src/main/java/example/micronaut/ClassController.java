@@ -1,6 +1,6 @@
 package example.micronaut;
 
-import com.agent.TransiendtCLassInterface;
+import com.agent.TransientCLassInterface;
 import example.micronaut.dtos.CodeElementDto;
 import example.micronaut.dtos.CodeUpdateDto;
 import example.micronaut.dtos.JavaClassDto;
@@ -41,7 +41,7 @@ public class ClassController {
 
     @Put("/hot-swap/{className}")
     public HttpResponse<?> update(@PathVariable String className, @Body CodeUpdateDto code) throws UnmodifiableClassException, ClassNotFoundException, InterruptedException {
-        TransiendtCLassInterface transiendtCLassInterface = Application.hotSwap.hotSwap(classNameToInternal(className), code.getCode());
+        TransientCLassInterface transiendtCLassInterface = Application.hotSwap.hotSwap(classNameToInternal(className), code.getCode());
         transiendtCLassInterface.waitUntilReloaded();
         return HttpResponse.ok();
     }

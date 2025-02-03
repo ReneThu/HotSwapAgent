@@ -7,13 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.agent.ClassStoreInterface;
-import com.agent.hotswaping.TrancientClass;
+import com.agent.hotswaping.TransientClass;
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 
 public class ClassStore implements ClassStoreInterface {
 
     private final ConcurrentMap<String, SavedClassFile> classToFileMap = new ConcurrentHashMap<>();
-    private final String tmpFolder = "/tmp"; //TODO look this up
+    private final String tmpFolder = "/tmp"; //TODO this might only work on linux
     public void saveClass(String className, byte[] classfileBuffer) {
         classToFileMap.put(className, new SavedClassFile(className, classfileBuffer));
     }
@@ -47,7 +47,7 @@ public class ClassStore implements ClassStoreInterface {
         return classToFileMap.keySet();
     }
 
-    public void updateClassFile(TrancientClass trancientClass) throws IOException {
+    public void updateClassFile(TransientClass trancientClass) throws IOException {
         SavedClassFile savedClassFile = classToFileMap.get(trancientClass.getClassName());
         savedClassFile.updateDecompiledClassLocation(trancientClass.getNewClassFile());
         savedClassFile.updateClassFileLocation(trancientClass.getCompiledClass());
