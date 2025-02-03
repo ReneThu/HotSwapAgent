@@ -40,15 +40,25 @@ layout: center
     font-weight: bold;
     text-align: center;
 }
+.centerLogo {
+    justify-items: anchor-center;
+    transform: scale(0.7);
+}
+.centerQrCOde {
+    justify-items: anchor-center;
+    transform: scale(0.3);
+}
 </style>
 
 
-<h1 class="headline">How does code hot swapping work, and what are its pitfalls?</h1><br />
+<h1 class="headline">How does code hot swapping work,<br /> and what are its pitfalls?</h1><br />
 <h2 class="headline-smol">Marco Sussitz</h2>
 
 <div class="addonestuff">Software developer at Dynatrace</div>
 <br /><br />
-<div class="addonestuff">https://www.sussitzm.com</div>
+  <div class="centerLogo">
+      <img src="./pictures/Dynatrace_Logo.png" alt=""/>
+  </div>
 
 ---
 layout: center
@@ -214,8 +224,12 @@ layout: center
 transition: none
 ---
 
-<v-clicks>
+<v-click>
+  <h1>Observe when classes are loaded</h1>
+</v-click>
 
+<v-clicks>
+<div>
 ```java{all}
 void JNICALL
 ClassFileLoadHook(jvmtiEnv *jvmti_env,
@@ -229,6 +243,7 @@ ClassFileLoadHook(jvmtiEnv *jvmti_env,
         jint* new_class_data_len,
         unsigned char** new_class_data)
 ```
+</div>
 
 </v-clicks>
 
@@ -237,7 +252,12 @@ layout: center
 transition: none
 ---
 
+<v-click>
+  <h1>Trigger a class reload</h1>
+</v-click>
+
 <v-clicks>
+<div>
 
 ```java{all}
 jvmtiError
@@ -245,30 +265,21 @@ RetransformClasses(jvmtiEnv* env,
             jint class_count,
             const jclass* classes)
 ```
-
+</div>
 </v-clicks>
 
----
-layout: center
-transition: none
----
-
 <v-clicks>
-
+<div>
 ```java{all}
 typedef struct {
     jclass klass;
     jint class_byte_count;
     const unsigned char* class_bytes;
 } jvmtiClassDefinition;
-
-jvmtiError
-RedefineClasses(jvmtiEnv* env,
-            jint class_count,
-            const jvmtiClassDefinition* class_definitions)
 ```
-
+</div>
 </v-clicks>
+
 
 ---
 layout: center
@@ -371,8 +382,8 @@ transition: none
 <div>
   <ul>
     <li v-click>Trigger the hotswap via one of the two APIs</li>
-  <li v-click>
-    <span v-mark.underscore.orange=3>
+    <li v-click>
+    <span v-mark.underscore.orange=4>
       Get a valid class representation from somewhere.
     </span>
   </li>
@@ -462,9 +473,30 @@ transition: none
 </div>
 
 ---
-layout: center
 transition: none
 ---
 
-<h1>TODO add end slide with QR code</h1>
+<style>
+
+.centerLogoFinalSlide {
+    transform: scale(0.34);
+}
+.centerQrCOde {
+    transform: scale(0.2);
+}
+</style>
+
+
+
+<div class="size-full grid grid-rows-2 gap-16 justify-items-center">
+<div class="flex gap-16 -mb-16 justify-center items-center">
+    <svg height="70%" aria-hidden="true" viewBox="0 0 24 24" version="1.1" width="70%" data-view-component="true" class="v-align-middle fill-white">
+        <path d="M12.5.75C6.146.75 1 5.896 1 12.25c0 5.089 3.292 9.387 7.863 10.91.575.101.79-.244.79-.546 0-.273-.014-1.178-.014-2.142-2.889.532-3.636-.704-3.866-1.35-.13-.331-.69-1.352-1.18-1.625-.402-.216-.977-.748-.014-.762.906-.014 1.553.834 1.769 1.179 1.035 1.74 2.688 1.25 3.349.948.1-.747.402-1.25.733-1.538-2.559-.287-5.232-1.279-5.232-5.678 0-1.25.445-2.285 1.178-3.09-.115-.288-.517-1.467.115-3.048 0 0 .963-.302 3.163 1.179.92-.259 1.897-.388 2.875-.388.977 0 1.955.13 2.875.388 2.2-1.495 3.162-1.179 3.162-1.179.633 1.581.23 2.76.115 3.048.733.805 1.179 1.825 1.179 3.09 0 4.413-2.688 5.39-5.247 5.678.417.36.776 1.05.776 2.128 0 1.538-.014 2.774-.014 3.162 0 .302.216.662.79.547C20.709 21.637 24 17.324 24 12.25 24 5.896 18.854.75 12.5.75Z"></path>
+    </svg>
+  <img class="h-full" src="./pictures/qr_code.png" alt=""/>
+</div>
+<div class="centerLogoFinalSlide">
+  <img src="./pictures/Dynatrace_Logo.png" alt=""/>
+</div>
+</div>
 
