@@ -169,7 +169,7 @@ transition: none
 <div>
   <ul>
       <li v-click>
-        <span v-mark.underscore.orange=7>
+        <span v-mark.underscore.orange=6>
           Loading
         </span>
       </li>
@@ -316,7 +316,7 @@ public class HotSwapAgent {
 }
 ```
 
-```java{all|all|7-11}
+```java{all|7-11}
 public class HotSwapAgent {
     private static Instrumentation instrumentation;
 
@@ -353,9 +353,10 @@ layout: center
 transition: none
 ---
 
-<v-clicks>
-
-```java{all|3-7|8}
+<v-clicks at="1">
+<div>
+````md magic-move{lines: true}
+```java{all|all|3-7|3|4|5|6|7|8|all}
 public class HotSwapTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader,
@@ -367,7 +368,25 @@ public class HotSwapTransformer implements ClassFileTransformer {
     }
 }
 ```
-
+```java{all|11-14}
+public class HotSwapTransformer implements ClassFileTransformer {
+    @Override
+    public byte[] transform(ClassLoader loader,
+                            String className,
+                            Class<?> classBeingRedefined,
+                            ProtectionDomain protectionDomain,
+                            byte[] classfileBuffer) throws IllegalClassFormatException {
+        return transformClassFile(classfileBuffer);
+    }
+    
+    public byte[] transform(byte[] classfileBuffer) {
+        //TODO
+        return null;
+    }
+}
+```
+````
+</div>
 </v-clicks>
 
 ---
@@ -404,8 +423,16 @@ transition: none
     <li v-click>The java compiler javac</li>
     <li v-click>The compiler API javax.tools</li>
     <li v-click>ASM</li>
-    <li v-click>Javassist</li>
-    <li v-click>Byte Buddy</li>
+    <li v-click>
+        <span v-mark.underscore.orange=7>
+            Javassist
+        </span>
+    </li>
+    <li v-click>
+        <span v-mark.underscore.orange=7>
+            Byte Buddy
+        </span>
+    </li>
   </ul>
 </div>
 
@@ -466,7 +493,7 @@ transition: none
 
 <div>
   <ul>
-    <li v-click>Attach a java agent to a JVM</li>
+    <li v-click>Attach a Java agent to a JVM</li>
     <li v-click>Trigger a class reload</li>
     <li v-click>Generate our new bytecode</li>
   </ul>
@@ -479,7 +506,7 @@ transition: none
 <style>
 
 .centerLogoFinalSlide {
-    transform: scale(0.34);
+    transform: scale(0.82);
 }
 .centerQrCOde {
     transform: scale(0.2);
@@ -490,7 +517,7 @@ transition: none
 
 <div class="size-full grid grid-rows-2 gap-16 justify-items-center">
 <div class="flex gap-16 -mb-16 justify-center items-center">
-    <svg height="70%" aria-hidden="true" viewBox="0 0 24 24" version="1.1" width="70%" data-view-component="true" class="v-align-middle fill-white">
+    <svg height="30%" aria-hidden="true" viewBox="0 0 24 24" version="1.1" width="30%" data-view-component="true" class="v-align-middle fill-white">
         <path d="M12.5.75C6.146.75 1 5.896 1 12.25c0 5.089 3.292 9.387 7.863 10.91.575.101.79-.244.79-.546 0-.273-.014-1.178-.014-2.142-2.889.532-3.636-.704-3.866-1.35-.13-.331-.69-1.352-1.18-1.625-.402-.216-.977-.748-.014-.762.906-.014 1.553.834 1.769 1.179 1.035 1.74 2.688 1.25 3.349.948.1-.747.402-1.25.733-1.538-2.559-.287-5.232-1.279-5.232-5.678 0-1.25.445-2.285 1.178-3.09-.115-.288-.517-1.467.115-3.048 0 0 .963-.302 3.163 1.179.92-.259 1.897-.388 2.875-.388.977 0 1.955.13 2.875.388 2.2-1.495 3.162-1.179 3.162-1.179.633 1.581.23 2.76.115 3.048.733.805 1.179 1.825 1.179 3.09 0 4.413-2.688 5.39-5.247 5.678.417.36.776 1.05.776 2.128 0 1.538-.014 2.774-.014 3.162 0 .302.216.662.79.547C20.709 21.637 24 17.324 24 12.25 24 5.896 18.854.75 12.5.75Z"></path>
     </svg>
   <img class="h-full" src="./pictures/qr_code.png" alt=""/>
