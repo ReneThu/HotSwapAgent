@@ -276,6 +276,11 @@ typedef struct {
     jint class_byte_count;
     const unsigned char* class_bytes;
 } jvmtiClassDefinition;
+
+jvmtiError
+RedefineClasses(jvmtiEnv* env,
+    jint class_count,
+    const jvmtiClassDefinition* class_definitions)
 ```
 </div>
 </v-clicks>
@@ -331,7 +336,7 @@ public class HotSwapAgent {
 }
 ```
 
-```java{all|9|10|6}
+```java{all|6}
 public class HotSwapAgent {
     private static Instrumentation instrumentation;
 
@@ -368,7 +373,7 @@ public class HotSwapTransformer implements ClassFileTransformer {
     }
 }
 ```
-```java{all|11-14}
+```java{all}
 public class HotSwapTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader,

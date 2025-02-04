@@ -81,7 +81,7 @@
 <h1 th:text="${codeElement.className}"></h1>
 <textarea id="codeArea" th:text="${codeElement.decompiledCode}"></textarea>
 <div class="button-container">
-    <button th:onclick="runCode([[${codeElement.className}]])">Run</button>
+    <button th:onclick="runCode([[${codeElement.className}]])">Update</button>
     <button class="back-button" onclick="goBack()">Back</button>
 </div>
 </body>

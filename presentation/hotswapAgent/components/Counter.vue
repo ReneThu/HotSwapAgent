@@ -40,7 +40,7 @@ function stopFetching() {
       text="white"
       @click="startFetching"
     >
-      Run
+      Start
     </button>
     <button
       border="l main"
