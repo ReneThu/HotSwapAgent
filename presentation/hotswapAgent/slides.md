@@ -48,6 +48,18 @@ layout: center
     justify-items: anchor-center;
     transform: scale(0.3);
 }
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+}
+.image-container img {
+    max-width: 90%;
+    max-height: 480px;
+    object-fit: contain;
+}
 </style>
 
 
@@ -57,7 +69,7 @@ layout: center
 <div class="addonestuff">Senior Software developer at Dynatrace</div>
 <br /><br />
   <div class="centerLogo">
-      <img src="./pictures/Dynatrace_Logo.png" alt=""/>
+      <img src="/Dynatrace_Logo.png" alt=""/>
   </div>
 
 ---
@@ -141,7 +153,7 @@ transition: none
 
 <v-clicks>
 
-<h1>TODO add MercyMeme.png</h1>
+<div class="image-container"><img src="/MercyMeme.png" alt="" /></div>
 
 </v-clicks>
 
@@ -314,8 +326,10 @@ public class HotSwapTransformer implements ClassFileTransformer {
     }
     
     public byte[] transformClassFile(byte[] classfileBuffer) {
-        //TODO
-        return null;
+        ClassReader reader = new ClassReader(classfileBuffer);
+        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
+        reader.accept(new CaptureInjector(writer), 0);
+        return writer.toByteArray();
     }
 }
 ```
@@ -388,7 +402,8 @@ transition: slide-up
 ---
 
 <v-clicks>
-<h1>We got a Problem! TODO this cat emote should be added via another click event😿</h1>
+<h1>We got a Problem!</h1>
+<div style="font-size: 8rem; line-height: 1;">😿</div>
 </v-clicks>
 
 
@@ -429,7 +444,7 @@ transition: none
 ---
 
 <v-clicks>
-<h1>TODO add HeapMemoryUsed</h1>
+<div class="image-container"><img src="/HeapMemoryUsed.png" alt="" /></div>
 </v-clicks>
 
 ---
@@ -438,7 +453,7 @@ transition: none
 ---
 
 <v-clicks>
-<h1>TODO add MetaSpaceMemoryUsed</h1>
+<div class="image-container"><img src="/MetaSpaceMemoryUsed.png" alt="" /></div>
 </v-clicks>
 
 ---
@@ -447,7 +462,7 @@ transition: slide-up
 ---
 
 <v-clicks>
-<h1>TODO add MobbyDickMeme</h1>
+<div class="image-container"><img src="/MobbyDickMeme.png" alt="" /></div>
 </v-clicks>
 
 ---
@@ -617,6 +632,55 @@ transition: slide-up
 </v-clicks>
 
 ---
+layout: default
+class: gdb-slide
+transition: slide-up
+---
+
+<GdbTerminal url="http://localhost:8081/gdb" />
+
+<style>
+:global(.slidev-layout.gdb-slide) {
+  padding: 0 !important;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #1e1e2e;
+}
+</style>
+
+<!--
+Live GDB demo against the slowdebug JVM running the metaspace leak. See GDB-CHEATSHEET.md.
+The terminal starts the session itself: on entering the slide it shows the gdb start command and
+waits — press Enter to launch gdb. Leaving the slide stops gdb and the slowdebug JVM.
+
+1. Press Enter to launch gdb (SIGSEGV/SIGBUS/SIGFPE pass through).
+2. `break JvmtiEnv::RedefineClasses` — a breakpoint in the hot loop / agent redefine call.
+3. `run` — gdb stops at the first redefinition on the main thread.
+4. `call (void)help()` / `call (void)ps()` / `call (void)pns($sp,$rbp,$pc)` — VM + Java stacks.
+5. `break VM_RedefineClasses::merge_cp_and_rewrite`, then `continue` — the constant-pool merge.
+   `p the_class->constants()->length()` grows on every `continue` (the leak the audience watches).
+6. `break InstanceKlass::add_previous_version` — `p scratch_class->constants()->on_stack()` is true,
+   so every old version is retained (the deeper leak). Walk `p this->previous_versions()`.
+7. `delete` the breakpoints and `continue` to let metaspace balloon.
+-->
+
+---
 layout: center
 transition: slide-up
 ---
+
+<v-click>
+    <div class="image-container"><img src="/rating.png" alt="" /></div>
+</v-click>
+
+---
+layout: center
+---
+
+<h1 class="headline">Questions?</h1>
+
+<br />
+<div class="centerLogo">
+    <img src="/Dynatrace_Logo.png" alt=""/>
+</div>
