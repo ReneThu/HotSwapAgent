@@ -1,0 +1,94 @@
+package demo;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+/**
+ * Sample application that leaks JVM Metaspace via HotSwap.
+ *
+ * <p>Its {@code main} loop repeatedly uses reflection to ask the Java agent to redefine THIS class
+ * (the caller) to the next pre-compiled version. The only thing that differs between versions is the
+ * string printed by {@link #printIteration()} - the "__SWAP_LABEL__" placeholder below, which the
+ * generator stamps with the swap index.
+ *
+ * <p>Because {@code main} stays on the stack while {@code Leaker} is redefined and the loop allocates
+ * almost nothing on the heap, class-unloading GCs are rare, so the fresh Metaspace allocated by each
+ * redefinition accumulates far faster than it is reclaimed - a visible Metaspace leak. Each
+ * <em>distinct</em> version's constant pool is merged into the live class and retained, so the leak
+ * grows with the number of distinct versions introduced; feed it more versions to leak more. An
+ * optional Metaspace-size target stops the loop once that much has leaked.
+ */
+public class Leaker {
+
+    public static void main(String[] args) throws Exception {
+        long durationMs = args.length > 0 ? Long.parseLong(args[0]) : 60_000L;
+        String swapsDir = args.length > 1 ? args[1] : "swaps";
+        int numVersions = args.length > 2 ? Integer.parseInt(args[2]) : 5000;
+        int printEvery = args.length > 3 ? Integer.parseInt(args[3]) : 1;
+        long targetMetaspaceMb = args.length > 4 ? Long.parseLong(args[4]) : 0L;
+
+        // Pre-load every pre-compiled version's bytecode so the hot loop performs no disk I/O.
+        byte[][] versions = new byte[numVersions][];
+        for (int i = 0; i < numVersions; i++) {
+            versions[i] = Files.readAllBytes(
+                    Path.of(swapsDir, String.format("%05d", i), "demo", "Leaker.class"));
+        }
+
+        // Resolve the agent's redefine(Class, byte[]) method once, via reflection. No compile-time
+        // dependency on the agent is required; the -javaagent jar is on the system class path.
+        Method redefine = Class.forName("agent.MetaspaceLeakAgent")
+                .getMethod("redefine", Class.class, byte[].class);
+
+        MemoryPoolMXBean metaspacePool = null;
+        for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+            if ("Metaspace".equals(pool.getName())) {
+                metaspacePool = pool;
+                break;
+            }
+        }
+        long targetBytes = targetMetaspaceMb * 1024L * 1024L;
+
+        System.out.println("[leaker] start: duration=" + durationMs + "ms versions=" + numVersions
+                + " printEvery=" + printEvery
+                + (targetMetaspaceMb > 0 ? " targetMetaspace=" + targetMetaspaceMb + "MB" : ""));
+
+        long endNanos = System.nanoTime() + durationMs * 1_000_000L;
+        long k = 0;
+        while (System.nanoTime() < endNanos) {
+            // Hot-swap THIS class (the caller) to the next pre-compiled version via the agent.
+            redefine.invoke(null, Leaker.class, versions[(int) (k % numVersions)]);
+            if (printEvery == 1 || k % printEvery == 0) {
+                printIteration();
+            }
+            // Periodically report Metaspace progress and stop once the target is reached. The
+            // check is frequent (every 256 redefinitions) because near the target each redefinition
+            // adds a large amount, so a coarse interval would overshoot significantly.
+            if ((k & 0xFF) == 0 && metaspacePool != null) {
+                long used = metaspacePool.getUsage().getUsed();
+                if (k % 8192 == 0) {
+                    System.out.println("[leaker] metaspace used=" + (used / (1024L * 1024L))
+                            + "MB after " + k + " redefinitions");
+                }
+                if (targetBytes > 0 && used >= targetBytes) {
+                    System.out.println("[leaker] reached metaspace target ("
+                            + (used / (1024L * 1024L)) + "MB) after " + k
+                            + " redefinitions; stopping.");
+                    break;
+                }
+            }
+            k++;
+        }
+
+        long finalMb = metaspacePool != null ? metaspacePool.getUsage().getUsed() / (1024L * 1024L) : -1;
+        System.out.println("[leaker] done: performed " + k + " redefinitions; metaspace used="
+                + finalMb + "MB");
+    }
+
+    /** The ONLY method that differs between pre-compiled versions: the printed label. */
+    static void printIteration() {
+        System.out.println("__SWAP_LABEL__");
+    }
+}

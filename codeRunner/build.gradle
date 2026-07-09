@@ -25,7 +25,7 @@ dependencies {
 
 
 application {
-    mainClass = "example.micronaut.Application"
+    mainClass = "micronaut.Application"
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("21")
@@ -52,7 +52,7 @@ micronaut {
         optimizeClassLoading = true
         deduceEnvironment = true
         optimizeNetty = true
-        replaceLogbackXml = true
+        replaceLogbackXml = false
     }
 }
 
