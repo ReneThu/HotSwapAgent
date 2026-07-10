@@ -45,5 +45,83 @@
         <td><a th:href="${classDto.showCodeUrl}" th:text="${classDto.javaClassName}"></a></td>
     </tr>
 </table>
+<script>
+    // Mirror this page across every slide window (presenter + audience). Report where the iframe
+    // navigated by telling our own parent (DemoIframe.vue); the parent records our current path,
+    // knows not to reload us, and publishes it to the shared backend so the other window follows.
+    (function () {
+        var path = location.pathname;
+        try { if (window.parent && window.parent !== window) window.parent.postMessage({ demoPath: path }, '*'); } catch (e) {}
+    })();
+</script>
+<script>
+    // Forward the mouse position (normalized to this iframe's viewport) to the parent slide so the
+    // presenter's mirrored cursor stays visible while hovering/interacting with the iframe — the deck
+    // can't see mousemove inside a cross-origin iframe, so the presenter cursor would otherwise vanish.
+    (function () {
+        var lastTs = 0;
+        window.addEventListener('mousemove', function (ev) {
+            var now = Date.now();
+            if (now - lastTs < 30) return;
+            lastTs = now;
+            var nx = ev.clientX / window.innerWidth;
+            var ny = ev.clientY / window.innerHeight;
+            try { if (window.parent && window.parent !== window) window.parent.postMessage({ demoCursor: { nx: nx, ny: ny } }, '*'); } catch (e) {}
+        }, { passive: true });
+    })();
+</script>
+<script>
+    // Mirror scroll position across every slide window (presenter + audience) through the shared
+    // backend, since the deck cannot scroll a cross-origin iframe. Publish our own scrolling and poll
+    // for the other window's; an applyingRemote/lastSent guard prevents a feedback loop.
+    (function () {
+        var SCROLL_API = 'http://localhost:8081/demo/scroll';
+        var PUBLISH_MS = 80;
+        var POLL_MS = 150;
+        var textarea = document.getElementById('codeArea');
+        var applyingRemote = false;
+        var lastSent = '';
+        var pubTimer = null;
+
+        function scroller() { return document.scrollingElement || document.documentElement; }
+
+        function snapshot() {
+            var w = scroller();
+            return JSON.stringify({
+                wx: w.scrollLeft, wy: w.scrollTop,
+                tx: textarea ? textarea.scrollLeft : 0,
+                ty: textarea ? textarea.scrollTop : 0
+            });
+        }
+
+        function publish() {
+            var s = snapshot();
+            if (s === lastSent) return;
+            lastSent = s;
+            try { fetch(SCROLL_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: s }); } catch (e) {}
+        }
+
+        // capture=true so scroll events from inner elements (the textarea) reach this listener too.
+        window.addEventListener('scroll', function () {
+            if (applyingRemote || pubTimer) return;
+            pubTimer = setTimeout(function () { pubTimer = null; publish(); }, PUBLISH_MS);
+        }, true);
+
+        setInterval(function () {
+            fetch(SCROLL_API).then(function (r) { return r.text(); }).then(function (txt) {
+                if (!txt || txt === lastSent) return;
+                var s; try { s = JSON.parse(txt); } catch (e) { return; }
+                applyingRemote = true;
+                try {
+                    var w = scroller();
+                    if (typeof s.wy === 'number') { w.scrollTop = s.wy; w.scrollLeft = s.wx || 0; }
+                    if (textarea && typeof s.ty === 'number') { textarea.scrollTop = s.ty; textarea.scrollLeft = s.tx || 0; }
+                } catch (e) {}
+                lastSent = txt;
+                setTimeout(function () { applyingRemote = false; }, 0);
+            }).catch(function () {});
+        }, POLL_MS);
+    })();
+</script>
 </body>
 </html>

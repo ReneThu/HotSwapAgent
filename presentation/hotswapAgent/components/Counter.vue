@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onUnmounted } from 'vue'
+import { onSlideEnter, onSlideLeave } from '@slidev/client'
 
 const BASE_URL = 'http://localhost:8081'
 const POLL_INTERVAL_MS = 500
@@ -9,8 +10,15 @@ type Status = 'stopped' | 'starting' | 'running' | 'stopping' | 'error'
 const status = ref<Status>('stopped')
 const output = ref('')
 const errorMessage = ref('')
-const intervalId = ref<number | null>(null)
 const outputEl = ref<HTMLElement | null>(null)
+
+// While a Start/Stop click is in flight we show the transient label until the backend confirms;
+// otherwise `status` simply mirrors the shared backend, so every window (presenter + projected
+// audience view in presenter mode) converges on the same state regardless of which one clicked.
+type Pending = 'start' | 'stop' | null
+const pending = ref<Pending>(null)
+const backendRunning = ref(false)
+let intervalId: number | null = null
 
 const canStart = computed(() => status.value === 'stopped' || status.value === 'error')
 const canStop = computed(() => status.value === 'running' || status.value === 'error')
@@ -36,17 +44,50 @@ async function fetchOutput() {
   }
 }
 
+async function fetchStatus() {
+  let running: boolean
+  try {
+    const response = await fetch(`${BASE_URL}/status`)
+    running = (await response.text()).trim() === 'running'
+  } catch {
+    // Ignore transient backend blips; keep the last known state rather than flickering to error.
+    return
+  }
+
+  // Reflect observed backend transitions so this window's DemoIframe reacts — even when the click
+  // that caused the transition happened in another window (presenter mode).
+  if (running && !backendRunning.value) {
+    window.dispatchEvent(new CustomEvent('demo:started'))
+  } else if (!running && backendRunning.value) {
+    window.dispatchEvent(new CustomEvent('demo:stopped'))
+  }
+  backendRunning.value = running
+
+  if (pending.value === 'start') {
+    if (running) { pending.value = null; status.value = 'running' }
+  } else if (pending.value === 'stop') {
+    if (!running) { pending.value = null; status.value = 'stopped' }
+  } else if (status.value !== 'error') {
+    status.value = running ? 'running' : 'stopped'
+  }
+}
+
+async function poll() {
+  await fetchStatus()
+  await fetchOutput()
+}
+
 function startPolling() {
-  if (intervalId.value == null) {
-    fetchOutput()
-    intervalId.value = window.setInterval(fetchOutput, POLL_INTERVAL_MS)
+  if (intervalId == null) {
+    poll()
+    intervalId = window.setInterval(poll, POLL_INTERVAL_MS)
   }
 }
 
 function stopPolling() {
-  if (intervalId.value != null) {
-    clearInterval(intervalId.value)
-    intervalId.value = null
+  if (intervalId != null) {
+    clearInterval(intervalId)
+    intervalId = null
   }
 }
 
@@ -54,15 +95,15 @@ async function startApp() {
   if (!canStart.value) return
   errorMessage.value = ''
   status.value = 'starting'
+  pending.value = 'start'
   try {
     const response = await fetch(`${BASE_URL}/start`)
     if (!response.ok && response.status !== 409) {
       throw new Error(`HTTP ${response.status}`)
     }
-    status.value = 'running'
-    startPolling()
-    window.dispatchEvent(new CustomEvent('demo:started'))
+    await poll()
   } catch {
+    pending.value = null
     status.value = 'error'
     errorMessage.value = 'Could not reach the backend on :8081'
   }
@@ -72,20 +113,22 @@ async function stopApp() {
   if (!canStop.value) return
   errorMessage.value = ''
   status.value = 'stopping'
-  stopPolling()
+  pending.value = 'stop'
   try {
     const response = await fetch(`${BASE_URL}/stop`)
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`)
     }
-    status.value = 'stopped'
-    window.dispatchEvent(new CustomEvent('demo:stopped'))
+    await poll()
   } catch {
+    pending.value = null
     status.value = 'error'
     errorMessage.value = 'Could not reach the backend on :8081'
   }
 }
 
+onSlideEnter(startPolling)
+onSlideLeave(stopPolling)
 onUnmounted(stopPolling)
 </script>
 
