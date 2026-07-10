@@ -99,7 +99,25 @@ public class Main {
 </v-clicks>
 
 <!--
-Lets start this right away with a little demo
+I think that every programmer has their something they like the most. Their little opsesion.
+That might be a favorite technology, a favorite langues, a favorite tool.
+
+FOr me that would be Java. I know not everyone likes it but it is by far my favoirte progamming langues.
+ANd what I like the most about it is defently the JVM. I just love what you can do with it. The virutal machin gives you the option to do so many things.
+
+And I have done a lot of mischife with the JVM
+
+THis is why I was escpally happy to be asked to work on the liveDebugger at our comapny. Long story short this tool alows you to look into your runny application.
+But it is honestly not too imortaned what you can do with it for this talk.
+
+The importaned thing is that it used run time generated code and code hotswaping. 
+Two of my faorite things.
+
+So I got right to work.
+
+Lets imagine this little sample progamm
+
+......
 -->
 
 ---
@@ -146,6 +164,15 @@ transition: none
 
 </v-clicks>
 
+<!--
+How does it work?
+
+
+Next slide
+
+with the JVMTI
+-->
+
 ---
 layout: center
 transition: none
@@ -156,6 +183,10 @@ transition: none
 <div class="image-container"><img src="/MercyMeme.png" alt="" /></div>
 
 </v-clicks>
+
+<!--
+Who here has worked with the JVMTI before?
+-->
 
 ---
 layout: center
@@ -190,6 +221,10 @@ transition: none
     <li v-click>Trigger a reload of a class</li>
   </ul>
 </div>
+
+<!--
+You need two things!
+-->
 
 
 ---
@@ -258,7 +293,6 @@ RedefineClasses(jvmtiEnv* env,
 </div>
 </v-clicks>
 
-
 ---
 layout: center
 transition: none
@@ -294,6 +328,10 @@ public class HotSwapAgent {
 ````
 </v-clicks>
 
+<!--
+But I am not going to torutoe you with too much C++ for now we can look at Java code.
+-->
+
 ---
 layout: center
 transition: none
@@ -326,10 +364,7 @@ public class HotSwapTransformer implements ClassFileTransformer {
     }
     
     public byte[] transformClassFile(byte[] classfileBuffer) {
-        ClassReader reader = new ClassReader(classfileBuffer);
-        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
-        reader.accept(new CaptureInjector(writer), 0);
-        return writer.toByteArray();
+        return todoImplement();
     }
 }
 ```
@@ -396,6 +431,10 @@ public class Main {
 </v-clicks>
 
 
+<!--
+So what does the LiveDebugger do to a method?
+-->
+
 ---
 layout: center
 transition: slide-up
@@ -406,6 +445,12 @@ transition: slide-up
 <div style="font-size: 8rem; line-height: 1;">😿</div>
 </v-clicks>
 
+
+<!--
+Tell story how I added a jenkins memory leak test.
+
+But we have a problem I did manule testing.
+-->
 
 ---
 layout: center
@@ -465,6 +510,25 @@ transition: slide-up
 <div class="image-container"><img src="/MobbyDickMeme.png" alt="" /></div>
 </v-clicks>
 
+<!--
+Every good story needs a villel. And I have just found mine.
+
+Question to the audince what was the longes amound of time you have ever spend on a bug?
+One week? One month? two months? longer?
+
+I thing I worked on this for almost two months when I first found it. Not non stop but I keeped it on my mind.
+This was my white whale.
+
+And hunting such a bug is very different from a normal bug.
+To fix such a problem we need to pay blood.
+
+NEXT SLIDE!!!!!!!!
+
+We have to give some thing up. And the first thing I gave up was my time.
+
+
+-->
+
 ---
 layout: center
 transition: slide-up
@@ -474,6 +538,12 @@ transition: slide-up
 <h1>We need a reproducer!</h1>
 </v-clicks>
 
+<!--
+We have to give some thing up. And the first thing I gave up was my time.
+Click!!!
+
+We need a repdocuer.
+-->
 ---
 layout: center
 transition: slide-up
@@ -555,6 +625,16 @@ transition: slide-up
     <h2>Metaspace is a native (as in: off-heap) memory manager in hotspot. It is used to manage memory for class metadata. Class metadata are allocated when classes are loaded. </h2>
 </v-clicks>
 
+
+<!--
+But even with access to a repducer I was not able to find the problem. I found a JVM bug which was already fix on a later JVM
+I found a bunch of other stuff but nothing helped me in understanding why excetly the meta space grew and if I could even fix this.
+
+So I had to give up another thing. MY Agency. I spend hours reding documentation about the meta space
+
+quick refresher what the neta space is. It is a repclament for the permGen 
+-->
+
 ---
 layout: center
 transition: slide-up
@@ -567,6 +647,11 @@ transition: slide-up
     <h2>- The JVMTI documentation</h2>
 </v-clicks>
 
+
+<!--
+SO I checkt the JLS and the JVMS but nothing they dont talk about hotswapping at all
+But the JVMTI was already a bit of a hit. It would hind at the problem already.
+-->
 
 ---
 layout: center
@@ -631,6 +716,29 @@ transition: slide-up
     <h2>Enjoy?</h2>
 </v-clicks>
 
+<!--
+So everything that we have tried so far has faild. We where not able to figruou out why this is happening and if we can stop it.
+In a heors jounry this would be the Abyss. The lowest point of our story.
+The last step before our hero solves the problem.
+
+But this is not a Heros jounre. It is a fight agains nature or a machine in this case.
+And I have one mor thing I can sacrifies my sanatie.
+
+
+Some of you might have noticed that we are deep in implementation details of our virtual machine.
+THose bevoirues are not covert by any specs. And if your progam relais on those things you made mutible bad desitions.
+But sometimes you gotte do what you gotte do.
+
+
+At the end of the day the JVM is also just a prgoam. A program that is written in a prommaing lanuges.
+C++ in our case. And we can debug that. With GDB for example. 
+
+So I did just that!
+
+
+Explain how to debug a JVM
+-->
+
 ---
 layout: default
 class: gdb-slide
@@ -650,20 +758,86 @@ transition: slide-up
 </style>
 
 <!--
-Live GDB demo against the slowdebug JVM running the metaspace leak. See GDB-CHEATSHEET.md.
-The terminal starts the session itself: on entering the slide it shows the gdb start command and
-waits — press Enter to launch gdb. Leaving the slide stops gdb and the slowdebug JVM.
+break JvmtiEnv::RedefineClasses
 
-1. Press Enter to launch gdb (SIGSEGV/SIGBUS/SIGFPE pass through).
-2. `break JvmtiEnv::RedefineClasses` — a breakpoint in the hot loop / agent redefine call.
-3. `run` — gdb stops at the first redefinition on the main thread.
-4. `call (void)help()` / `call (void)ps()` / `call (void)pns($sp,$rbp,$pc)` — VM + Java stacks.
-5. `break VM_RedefineClasses::merge_cp_and_rewrite`, then `continue` — the constant-pool merge.
-   `p the_class->constants()->length()` grows on every `continue` (the leak the audience watches).
-6. `break InstanceKlass::add_previous_version` — `p scratch_class->constants()->on_stack()` is true,
-   so every old version is retained (the deeper leak). Walk `p this->previous_versions()`.
-7. `delete` the breakpoints and `continue` to let metaspace balloon.
+run
+
+call help()
+
+call ps()
+
+call pns($sp,$rbp,$pc)
+
+break VM_RedefineClasses::merge_cp_and_rewrite
+
+continue
+
+list
+
+info args
+
+ptype the_class
+
+p *the_class
+
+p the_class->constants()->length()
+p scratch_class->constants()->length()
+p merge_cp_length
+
+info b
+dis b
 -->
+
+---
+layout: center
+transition: slide-up
+---
+
+<v-click>
+<h1>Volker Simonis - HotSpot Debugging at the OS Level</h1>
+    <div class="image-container"><img src="/gdbDebugging.png" alt="" /></div>
+</v-click>
+
+---
+layout: center
+transition: slide-up
+---
+
+<v-click>
+    <h1>What was the problem?</h1>
+</v-click>
+
+<v-clicks>
+
+````md magic-move{lines: true}
+```text{all|2}
+Constant pool:
+  #1 = String             #1            
+  #2 = Utf8               {...........}
+```
+```text{2}
+Constant pool:
+  #1 = String             #2            
+  #2 = Utf8               {...........}
+```
+```text{2,4}
+Constant pool:
+  #1 = String             #3            
+  #2 = Utf8               {...........}
+```
+```text{2,4,6}
+Constant pool:
+  #1 = String             #4            
+  #2 = Utf8               {...........}
+```
+```text{2,4,6,8}
+Constant pool:
+  #1 = String             #5            
+  #2 = Utf8               {...........}
+```
+````
+
+</v-clicks>
 
 ---
 layout: center
