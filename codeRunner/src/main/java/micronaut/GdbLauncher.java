@@ -117,7 +117,6 @@ public class GdbLauncher {
                 "export TERM=xterm-256color",
                 "clear",
                 // Show the gdb start command and wait — pressing Enter launches the debug session.
-                "printf '\\033[2m# Live JVM debugging \\342\\200\\224 press Enter to launch gdb on the slowdebug build\\033[0m\\n'",
                 "printf '\\033[1;32mpresenter@jvm-debug\\033[0m:\\033[1;34m~/jdk\\033[0m$ %s' '" + displayCmd + "'",
                 "read -r _",
                 "echo",

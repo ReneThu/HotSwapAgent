@@ -38,7 +38,9 @@ onSlideLeave(() => { iframeSrc.value = '' })
   position: absolute;
   inset: 0;
   display: flex;
-  background: #1e1e2e;
+  padding: 8px;
+  box-sizing: border-box;
+  background: #000;
 }
 
 .gdb-terminal__frame {
