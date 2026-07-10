@@ -837,6 +837,12 @@ Constant pool:
 ```
 ````
 
+<!--
+Because of this single thing the class meta data for this one class blow up
+If I would remove and add a single breakpoint a 100 times there would be a 100 different constants
+in the constand pool and a bunch of unecesary data would be stored.
+-->
+
 </v-clicks>
 
 ---
